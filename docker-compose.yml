@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: zenbourg_postgres
+    environment:
+      POSTGRES_DB: zenbourg_production
+      POSTGRES_USER: zenbourg_user
+      POSTGRES_PASSWORD: your_secure_password_here
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - zenbourg_network
+
+  # Redis for caching and sessions
+  redis:
+    image: redis:7-alpine
+    container_name: zenbourg_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - zenbourg_network
+
+  # Next.js Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: zenbourg_app
+    environment:
+      - DATABASE_URL=postgresql://zenbourg_user:your_secure_password_here@postgres:5432/zenbourg_production
+      - REDIS_URL=redis://redis:6379
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=your-super-secure-secret-key-here
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - zenbourg_network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  zenbourg_network:
+    driver: bridge

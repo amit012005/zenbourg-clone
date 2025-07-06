@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { put } from "@vercel/blob"
 import { neon } from "@neondatabase/serverless"
 import { generateContractPdf } from "@/lib/pdf-utils"
-import { auth } from "@/lib/auth" // Your NextAuth auth function
+import { authOptions as auth } from "@/lib/auth" // Your NextAuth auth function
 import type { ClientContract } from "@/types/client-portal"
 
 const sql = neon(process.env.DATABASE_URL!)

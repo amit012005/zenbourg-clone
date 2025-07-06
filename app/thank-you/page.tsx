@@ -11,13 +11,13 @@ import { verifyPayment } from "@/lib/payment-actions"
 export default function ThankYouPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const paymentId = searchParams.get("paymentId")
+  const paymentId = searchParams.get("session_id")
 
   const [isLoading, setIsLoading] = useState(true)
   const [paymentStatus, setPaymentStatus] = useState<"paid" | "pending" | "failed">("pending")
 
   useEffect(() => {
-    if (!paymentId) {
+    if (paymentId) {
       router.push("/services")
       return
     }

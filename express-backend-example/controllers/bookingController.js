@@ -9,7 +9,7 @@ require("dotenv").config()
 // @access  Public (or Private if only logged-in users can book)
 const createBooking = asyncHandler(async (req, res) => {
   const { name, email, phone, companyName, projectDetails, preferredDate } = req.body
-
+  console.log(req.body)
   if (!name || !email || !projectDetails || !preferredDate) {
     res.status(400)
     throw new Error("Please provide name, email, project details, and preferred date.")

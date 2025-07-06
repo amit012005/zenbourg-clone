@@ -10,51 +10,39 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Clock, FileText, CreditCard, Users, BarChart } from "lucide-react"
 
+interface Booking {
+  id: string
+  service: string
+  date: string
+  time: string
+  status: string
+}
+
 export default function DashboardPage() {
   const { data: session, status } = useSession()
-  const [bookings, setBookings] = useState([])
-  const [payments, setPayments] = useState([])
+  const [bookings, setBookings] = useState<Booking[]>([])
+  const [payments, setPayments] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  // Redirect if not authenticated
   useEffect(() => {
     if (status === "unauthenticated") {
       redirect("/signin?callbackUrl=/dashboard")
     }
   }, [status])
 
+    useEffect(() => {
+  console.log("Bookings updated:", bookings[0])
+}, [bookings])
+
   useEffect(() => {
     const fetchDashboardData = async () => {
       if (status !== "authenticated") return
 
       try {
-        // In a real app, fetch from API
-        // const bookingsRes = await fetch('/api/bookings/user')
-        // const bookingsData = await bookingsRes.json()
-        // setBookings(bookingsData.bookings)
-
-        // const paymentsRes = await fetch('/api/payments/user')
-        // const paymentsData = await paymentsRes.json()
-        // setPayments(paymentsData.payments)
-
-        // Mock data for demo
-        setBookings([
-          {
-            id: "BK-1234",
-            service: "Website Development",
-            date: "2024-01-15",
-            time: "10:00 AM",
-            status: "confirmed",
-          },
-          {
-            id: "BK-5678",
-            service: "SEO Optimization",
-            date: "2024-01-22",
-            time: "2:00 PM",
-            status: "confirmed",
-          },
-        ])
-
+        const res = await fetch("/api/bookings/user", { cache: "no-store" })
+        const data = await res.json()
+        setBookings(data.bookings || [])
+        // You can fetch payments similarly or use static data for now
         setPayments([
           {
             id: "PAY-1234",
@@ -104,7 +92,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Dashboard Overview */}
+        {/* Summary */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardContent className="pt-6">
@@ -129,7 +117,7 @@ export default function DashboardPage() {
                 <div>
                   <p className="text-sm text-gray-600">Total Spent</p>
                   <p className="text-2xl font-bold">
-                    ${payments.reduce((total: number, payment: any) => total + payment.amount, 0).toLocaleString()}
+                    ${payments.reduce((total, p) => total + p.amount, 0).toLocaleString()}
                   </p>
                 </div>
               </div>
@@ -159,6 +147,7 @@ export default function DashboardPage() {
             <TabsTrigger value="projects">Projects</TabsTrigger>
           </TabsList>
 
+          {/* Bookings Tab */}
           <TabsContent value="bookings">
             <Card>
               <CardHeader>
@@ -169,19 +158,19 @@ export default function DashboardPage() {
                   <p className="text-center text-gray-600 py-4">No bookings found</p>
                 ) : (
                   <div className="space-y-4">
-                    {bookings.map((booking: any) => (
-                      <div key={booking.id} className="flex flex-col md:flex-row justify-between p-4 border rounded-lg">
+                    {bookings.map((b) => (
+                      <div key={b.id} className="flex flex-col md:flex-row justify-between p-4 border rounded-lg">
                         <div>
-                          <h3 className="font-medium">{booking.service}</h3>
+                          <h3 className="font-medium">{b.service}</h3>
                           <div className="flex items-center text-sm text-gray-600 mt-1">
                             <Calendar className="h-4 w-4 mr-1" />
-                            <span>{new Date(booking.date).toLocaleDateString()}</span>
+                            <span>{b.date}</span>
                             <Clock className="h-4 w-4 ml-3 mr-1" />
-                            <span>{booking.time}</span>
+                            <span>{b.time}</span>
                           </div>
                         </div>
                         <div className="mt-3 md:mt-0 flex items-center">
-                          <Badge className="bg-green-500">{booking.status}</Badge>
+                          <Badge className="bg-green-500">{b.status}</Badge>
                           <Button variant="ghost" size="sm" className="ml-2">
                             View Details
                           </Button>
@@ -194,6 +183,7 @@ export default function DashboardPage() {
             </Card>
           </TabsContent>
 
+          {/* Payments Tab */}
           <TabsContent value="payments">
             <Card>
               <CardHeader>
@@ -204,24 +194,18 @@ export default function DashboardPage() {
                   <p className="text-center text-gray-600 py-4">No payments found</p>
                 ) : (
                   <div className="space-y-4">
-                    {payments.map((payment: any) => (
-                      <div key={payment.id} className="flex flex-col md:flex-row justify-between p-4 border rounded-lg">
+                    {payments.map((p) => (
+                      <div key={p.id} className="flex flex-col md:flex-row justify-between p-4 border rounded-lg">
                         <div>
-                          <h3 className="font-medium">{payment.service}</h3>
-                          <div className="text-sm text-gray-600 mt-1">
-                            <span>Payment ID: {payment.id}</span>
-                          </div>
+                          <h3 className="font-medium">{p.service}</h3>
+                          <p className="text-sm text-gray-600 mt-1">Payment ID: {p.id}</p>
                         </div>
-                        <div className="mt-3 md:mt-0">
-                          <div className="text-right">
-                            <p className="font-bold">${payment.amount.toLocaleString()}</p>
-                            <p className="text-sm text-gray-600">{new Date(payment.date).toLocaleDateString()}</p>
-                          </div>
-                          <div className="mt-2 flex justify-end">
-                            <Button variant="outline" size="sm">
-                              Download Invoice
-                            </Button>
-                          </div>
+                        <div className="mt-3 md:mt-0 text-right">
+                          <p className="font-bold">${p.amount.toLocaleString()}</p>
+                          <p className="text-sm text-gray-600">{new Date(p.date).toLocaleDateString()}</p>
+                          <Button variant="outline" size="sm" className="mt-2">
+                            Download Invoice
+                          </Button>
                         </div>
                       </div>
                     ))}
@@ -231,6 +215,7 @@ export default function DashboardPage() {
             </Card>
           </TabsContent>
 
+          {/* Projects Tab */}
           <TabsContent value="projects">
             <Card>
               <CardHeader>
@@ -241,13 +226,13 @@ export default function DashboardPage() {
                   <p className="text-center text-gray-600 py-4">No active projects</p>
                 ) : (
                   <div className="space-y-4">
-                    {payments.map((payment: any) => (
-                      <div key={payment.id} className="p-4 border rounded-lg">
+                    {payments.map((p) => (
+                      <div key={p.id} className="p-4 border rounded-lg">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h3 className="font-medium">{payment.service}</h3>
+                            <h3 className="font-medium">{p.service}</h3>
                             <p className="text-sm text-gray-600 mt-1">
-                              Started on {new Date(payment.date).toLocaleDateString()}
+                              Started on {new Date(p.date).toLocaleDateString()}
                             </p>
                           </div>
                           <Badge className="bg-blue-500">In Progress</Badge>
@@ -273,53 +258,47 @@ export default function DashboardPage() {
           </TabsContent>
         </Tabs>
 
-        {/* Admin Section (only visible to admins) */}
+        {/* Admin Controls (Optional) */}
         {session?.user?.role === "admin" && (
           <div className="mt-12">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Admin Controls</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card className="hover:shadow-md transition-shadow">
-                <CardContent className="pt-6">
-                  <div className="text-center">
-                    <div className="mx-auto w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
-                      <Users className="h-6 w-6 text-indigo-600" />
-                    </div>
-                    <h3 className="font-medium mb-2">Manage Users</h3>
-                    <p className="text-sm text-gray-600 mb-4">View and manage user accounts</p>
-                    <Button asChild variant="outline" className="w-full">
-                      <Link href="/admin/users">Access</Link>
-                    </Button>
+                <CardContent className="pt-6 text-center">
+                  <div className="mx-auto w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
+                    <Users className="h-6 w-6 text-indigo-600" />
                   </div>
+                  <h3 className="font-medium mb-2">Manage Users</h3>
+                  <p className="text-sm text-gray-600 mb-4">View and manage user accounts</p>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link href="/admin/users">Access</Link>
+                  </Button>
                 </CardContent>
               </Card>
 
               <Card className="hover:shadow-md transition-shadow">
-                <CardContent className="pt-6">
-                  <div className="text-center">
-                    <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                      <Calendar className="h-6 w-6 text-green-600" />
-                    </div>
-                    <h3 className="font-medium mb-2">Booking Management</h3>
-                    <p className="text-sm text-gray-600 mb-4">View and manage all bookings</p>
-                    <Button asChild variant="outline" className="w-full">
-                      <Link href="/admin/bookings">Access</Link>
-                    </Button>
+                <CardContent className="pt-6 text-center">
+                  <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                    <Calendar className="h-6 w-6 text-green-600" />
                   </div>
+                  <h3 className="font-medium mb-2">Booking Management</h3>
+                  <p className="text-sm text-gray-600 mb-4">View and manage all bookings</p>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link href="/admin/bookings">Access</Link>
+                  </Button>
                 </CardContent>
               </Card>
 
               <Card className="hover:shadow-md transition-shadow">
-                <CardContent className="pt-6">
-                  <div className="text-center">
-                    <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                      <BarChart className="h-6 w-6 text-blue-600" />
-                    </div>
-                    <h3 className="font-medium mb-2">Analytics Dashboard</h3>
-                    <p className="text-sm text-gray-600 mb-4">View business performance metrics</p>
-                    <Button asChild variant="outline" className="w-full">
-                      <Link href="/admin/analytics">Access</Link>
-                    </Button>
+                <CardContent className="pt-6 text-center">
+                  <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                    <BarChart className="h-6 w-6 text-blue-600" />
                   </div>
+                  <h3 className="font-medium mb-2">Analytics Dashboard</h3>
+                  <p className="text-sm text-gray-600 mb-4">View performance metrics</p>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link href="/admin/analytics">Access</Link>
+                  </Button>
                 </CardContent>
               </Card>
             </div>

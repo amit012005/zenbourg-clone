@@ -20,13 +20,13 @@ const transporter = nodemailer.createTransport({
 
 async function sendWelcomeEmail(email: string, name: string) {
   await transporter.sendMail({
-    from: `"YourApp" <${process.env.EMAIL_USER}>`,
+    from: `"Zenbourg" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: "🎉 Welcome to YourApp!",
+    subject: "🎉 Welcome to Zenbourg!",
     html: `
       <p>Hi ${name},</p>
       <p>Welcome aboard! We're excited to have you with us.</p>
-      <p>— The YourApp Team</p>
+      <p>— The Zenbourg Team</p>
     `,
   })
 }

@@ -19,7 +19,7 @@ async function sendWelcomeEmail(email: string, name: string) {
     from: `"Zenbourg" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: "🎉 Welcome to Zenbourg!",
-    text: `Hi ${name},\n\nThanks for verifying your email. Welcome aboard!\n\n- YourApp Team`,
+    text: `Hi ${name},\n\nThanks for verifying your email. Welcome aboard!\n\n- Zenbourg Team`,
     html: `
       <p>Hi ${name},</p>
       <p>Thanks for verifying your email. Welcome to <strong>Zenbourg</strong>!</p>

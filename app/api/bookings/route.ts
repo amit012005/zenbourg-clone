@@ -39,7 +39,7 @@ async function sendBookingConfirmationEmail({
   const googleMeetLink = "https://meet.google.com/sho-kvyf-jbi"
 
   const mailOptions = {
-    from: `"YourApp" <${process.env.EMAIL_USER}>`,
+    from: `"Zenbourg" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: "✅ Your Consultation is Confirmed",
     html: `
@@ -54,7 +54,7 @@ async function sendBookingConfirmationEmail({
         ${notes ? `<li><strong>Notes:</strong> ${notes}</li>` : ""}
       </ul>
       <p>We look forward to speaking with you!</p>
-      <p>— YourApp Team</p>
+      <p>— Zenbourg Team</p>
     `,
   }
 

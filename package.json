@@ -66,6 +66,7 @@
     "pdf-lib": "latest",
     "pg": "latest",
     "pg-native": "latest",
+    "prisma": "^6.11.1",
     "react": "^19",
     "react-day-picker": "latest",
     "react-dom": "^19",

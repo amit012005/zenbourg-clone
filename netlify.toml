@@ -1,7 +1,12 @@
 # netlify.toml
+
 [build]
-  command = "npx prisma generate && npx prisma migrate deploy && next build"
+  # This is the standard command to build a Next.js project.
+  command = "next build"
+  
+  # This is the directory that Next.js builds to.
   publish = ".next"
 
+# This plugin is essential for deploying Next.js sites on Netlify.
 [[plugins]]
   package = "@netlify/plugin-nextjs"
